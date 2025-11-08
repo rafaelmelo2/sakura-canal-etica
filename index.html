@@ -129,6 +129,17 @@
                             required></textarea>
                     </div>
 
+                    <!-- Destinatários -->
+                    <div>
+                        <label for="destinatarios" class="block text-sm font-medium text-gray-700">E-mails que receberão
+                            a denúncia</label>
+                        <textarea id="destinatarios" name="Destinatarios" rows="2"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            placeholder="Exemplo: compliance@sakura.com.br, ouvidoria@sakura.com.br"></textarea>
+                        <p class="mt-2 text-xs text-gray-500">Separe os endereços de e-mail com vírgulas. Pelo menos um
+                            endereço é obrigatório.</p>
+                    </div>
+
                     <!-- Mensagens de Feedback -->
                     <div id="submissionMessage" class="hidden p-4 rounded-md mb-4">
                         <p id="messageText" class="text-sm"></p>
@@ -193,50 +204,10 @@
             </div>
 
             <!-- Corpo do Modal (com scroll) -->
-            <div class="modal-body p-6 md:p-8 overflow-y-auto space-y-4 text-gray-700">
-
-                <!-- 
-                  AQUI VOCÊ DEVE INSERIR O SEU CÓDIGO DE CONDUTA.
-                  O texto abaixo é apenas um exemplo.
-                -->
-
-                <p class="font-semibold text-lg">Preâmbulo</p>
-                <p>O presente Código de Conduta e Ética ("Código") estabelece os princípios e valores que norteiam a
-                    atuação da Sakura e de todos os seus colaboradores, independentemente do cargo ou função. Nosso
-                    compromisso é com a transparência, integridade, respeito e segurança nas relações de trabalho.</p>
-
-                <p class="font-semibold text-lg mt-6">1. Combate ao Assédio</p>
-                <p>A Sakura repudia veementemente qualquer forma de assédio, seja moral ou sexual. </p>
-                <ul class="list-disc list-inside space-y-1 ml-4">
-                    <li><strong>Assédio Moral:</strong> Toda e qualquer conduta abusiva (gesto, palavra, comportamento)
-                        que atente, por sua repetição ou sistematização, contra a dignidade ou integridade psíquica ou
-                        física de uma pessoa, ameaçando seu emprego ou degradando o ambiente de trabalho.</li>
-                    <li><strong>Assédio Sexual:</strong> Conduta de natureza sexual, manifestada fisicamente, por
-                        palavras, gestos ou outros meios, propostas ou impostas a pessoas contra sua vontade,
-                        causando-lhe constrangimento e violando a sua liberdade sexual.</li>
-                </ul>
-                <p>Não toleramos intimidação, humilhação, exposição vexatória ou qualquer forma de desrespeito no
-                    ambiente de trabalho.</p>
-
-                <p class="font-semibold text-lg mt-6">2. Diversidade e Inclusão</p>
-                <p>Promovemos um ambiente de trabalho inclusivo, que valoriza a diversidade e repudia qualquer forma de
-                    discriminação, seja por raça, cor, etnia, religião, gênero, orientação sexual, idade, deficiência ou
-                    qualquer outra característica.</p>
-
-                <p class="font-semibold text-lg mt-6">3. Conflito de Interesses</p>
-                <p>Os colaboradores devem agir sempre no melhor interesse da Sakura, evitando situações que configurem
-                    conflito de interesses, real ou aparente, entre suas atividades pessoais e profissionais.</p>
-
-                <p class="font-semibold text-lg mt-6">4. Confidencialidade</p>
-                <p>As informações da empresa, seus clientes e parceiros são confidenciais e devem ser tratadas com o
-                    máximo sigilo, não podendo ser utilizadas para fins pessoais ou repassadas a terceiros não
-                    autorizados.</p>
-
-                <p class="font-semibold text-lg mt-6">5. Uso do Canal de Ética</p>
-                <p>Este Canal é a ferramenta oficial para o relato seguro, e se desejado, anônimo, de violações a este
-                    Código. Garantimos que nenhuma retaliação será tolerada contra qualquer pessoa que, de boa-fé,
-                    relate uma preocupação ou participe de uma investigação.</p>
-
+            <div class="modal-body p-6 md:p-8 overflow-y-auto">
+                <div id="condutaContent" class="space-y-4 text-gray-700">
+                    <p class="text-sm text-gray-500">Carregando Código de Conduta...</p>
+                </div>
             </div>
 
             <!-- Rodapé do Modal -->
@@ -252,13 +223,7 @@
 
     <script>
         // URL do servidor backend (ajuste se necessário)
-        const API_URL = 'http://localhost:3333/api/send-ethics-report';
-
-        // Lista de destinatários para receber a denúncia
-        const to = [
-            "rafinhalelograma@hotmail.com",
-            "maeduardaperoli@gmail.com"
-        ];
+        const API_URL = 'http://129.153.92.154:3333/api/send-ethics-report';
 
         // Função para mostrar mensagem de feedback
         function showMessage(message, isError = false) {
@@ -289,7 +254,7 @@
         }
 
         // Função para enviar e-mail via backend
-        async function sendEmail(formData) {
+        async function sendEmail(formData, recipients) {
             const data = {
                 tipo_relato: formData.get('Tipo_de_Relato'),
                 identificacao: formData.get('Identificacao'),
@@ -297,7 +262,7 @@
                 contato: formData.get('Contato') || '',
                 pessoas_envolvidas: formData.get('Pessoas_Envolvidas') || '',
                 descricao: formData.get('Descricao_da_Denuncia'),
-                to
+                to: recipients
             };
 
             try {
@@ -317,6 +282,7 @@
                     setTimeout(() => {
                         document.getElementById('ethicsForm').reset();
                         document.getElementById('identificacaoFields').classList.add('hidden');
+                        document.getElementById('destinatarios').value = '';
                     }, 2000);
                 } else {
                     showMessage(`Erro: ${result.message}`, true);
@@ -334,6 +300,8 @@
             const ethicsForm = document.getElementById('ethicsForm');
             const anonCheckbox = document.getElementById('anonimato');
             const identificacaoFields = document.getElementById('identificacaoFields');
+            const destinatariosInput = document.getElementById('destinatarios');
+            const condutaContent = document.getElementById('condutaContent');
 
             // Alterna a exibição dos campos de identificação
             anonCheckbox.addEventListener('change', () => {
@@ -361,11 +329,21 @@
                 // Coleta os dados do formulário
                 const formData = new FormData(ethicsForm);
 
+                const destinatarios = destinatariosInput.value
+                    .split(',')
+                    .map(email => email.trim())
+                    .filter(email => email);
+
+                if (destinatarios.length === 0) {
+                    showMessage('Informe pelo menos um e-mail de destinatário (separe múltiplos por vírgula).', true);
+                    return;
+                }
+
                 // Mostra mensagem de carregamento
                 showLoading();
 
                 // Envia o e-mail
-                sendEmail(formData);
+                sendEmail(formData, destinatarios);
             });
 
 
@@ -374,6 +352,24 @@
             const openModalBtn = document.getElementById('openModalBtn');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const closeModalBtnFooter = document.getElementById('closeModalBtnFooter');
+
+            // Carrega conteúdo do Código de Conduta
+            if (condutaContent) {
+                fetch('conduta.html')
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then((html) => {
+                        condutaContent.innerHTML = html;
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao carregar Código de Conduta:', error);
+                        condutaContent.innerHTML = '<p class="text-sm text-red-600">Não foi possível carregar o Código de Conduta. Atualize a página ou tente novamente mais tarde.</p>';
+                    });
+            }
 
             // Função para abrir o modal
             const openModal = () => modal.classList.remove('hidden');

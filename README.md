@@ -1,129 +1,54 @@
-# Canal de Ética - Backend
+# Canal de Ética - Sakura
 
-Sistema de backend para envio de e-mails do Canal de Ética usando Node.js e Express. Os e-mails são enviados em formato HTML com design profissional e incluem a logo da empresa.
+Interface web do Canal de Ética da Sakura. O projeto é totalmente estático (HTML + Tailwind via CDN) e integra-se a um backend externo para envio de denúncias por e-mail.
 
-## Como instalar e rodar
+## Visão Geral
 
-### 1. Instalar as dependências:
+- Formulário responsivo com Tailwind CSS.
+- Opção de denúncia anônima ou identificada, com campos condicionais.
+- Campo dedicado para listar os destinatários (separe por vírgulas).
+- Mensagens de feedback e loading em português.
+- Modal com Código de Conduta carregado dinamicamente de `conduta.html`.
+- Integração com endpoint configurável via `fetch`.
 
-```bash
-npm install
-```
+## Pré-requisitos
 
-### 2. Configurar as credenciais:
+Nenhuma etapa de build é necessária. Para visualizar:
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+1. Abra `index.html` diretamente no navegador, ou
+2. Sirva a pasta com um servidor estático simples (ex.: `npx serve .`, `python -m http.server`, etc.).
 
-- `GMAIL_USER`: Seu e-mail Gmail
-- `GMAIL_APP_PASSWORD`: Sua senha de aplicativo (sem espaços)
-- `TO_EMAIL`: E-mails que receberão as denúncias (separados por vírgula)
-- `PORT`: Porta do servidor (padrão: 3000)
+> ⚠️ O formulário usa `fetch` para `http://servidor:3333/api/send-ethics-report`. Atualize o valor da constante `API_URL` em `index.html` caso seu backend esteja em outra URL.
 
-**Importante:** Use uma senha de aplicativo, não sua senha normal do Gmail!
+## Configuração Rápida
 
-Para criar uma senha de aplicativo:
-
-1. Ative a verificação em duas etapas na sua conta Google
-2. Acesse: https://myaccount.google.com/apppasswords
-3. Gere uma senha de aplicativo
-
-**Exemplo de `.env`:**
-
-```env
-GMAIL_USER=seu-email@gmail.com
-GMAIL_APP_PASSWORD=sua-senha-de-aplicativo
-TO_EMAIL=admin@empresa.com,rh@empresa.com
-PORT=3000
-```
-
-### 3. Adicionar a logo (opcional):
-
-Coloque o arquivo `logo.png` na raiz do projeto. Se não houver logo, o e-mail será enviado sem ela.
-
-### 4. Iniciar o servidor:
-
-```bash
-npm start
-```
-
-O servidor estará rodando em: `http://localhost:3000`
-
-### 5. Acessar o formulário:
-
-Abra o arquivo `index.html` no navegador ou acesse: `http://localhost:3000`
+- **Endpoint:** edite `API_URL` em `index.html`.
+- **Destinatários:** informe os e-mails no campo “E-mails que receberão a denúncia” ao enviar o formulário.
+- **Logo:** substitua `logo.png` pelo logotipo desejado (há fallback automático caso não exista).
+- **Código de Conduta:** atualize `conduta.html`; o modal carrega esse arquivo via `fetch`.
 
 ## Estrutura do Projeto
 
-- `server.js`: Servidor Express que processa os envios de e-mail
-- `emailTemplate.js`: Template HTML e texto para os e-mails
-- `index.html`: Formulário web para envio de denúncias
-- `logo.png`: Logo da empresa (usada nos e-mails)
-- `.env`: Configurações e credenciais (não commitado)
-- `package.json`: Dependências do projeto
+- `index.html` — página principal com formulário, scripts e modal.
+- `conduta.html` — conteúdo rico do Código de Conduta.
+- `conduta.txt` — texto de referência utilizado para montar a versão HTML.
+- `logo.png` — imagem exibida na área superior do formulário.
 
-## Funcionalidades
+## Como Utilizar
 
-- ✅ Envio de e-mails em formato HTML com design profissional
-- ✅ Versão em texto plano como fallback para clientes antigos
-- ✅ Suporte a múltiplos destinatários (separados por vírgula)
-- ✅ Logo da empresa incluída automaticamente nos e-mails
-- ✅ Validação de campos obrigatórios
-- ✅ Tratamento de erros e logging
+1. Abra o formulário.
+2. Selecione o tipo de relato e preencha a descrição (obrigatório).
+3. Decida se deseja se identificar e preencha nome/contato, se necessário.
+4. Informe um ou mais e-mails de destino no campo específico.
+5. Clique em **Enviar Denúncia** e aguarde a mensagem de sucesso.
+6. Use o botão **Ver Código de Conduta** para consultar o documento dinâmico.
 
-## API
+## Personalizações Sugeridas
 
-### POST `/api/send-email`
+- Ajuste textos, cores ou estilos diretamente em `index.html`.
+- Inclua validações adicionais conforme regras internas.
+- Publique os arquivos em um ambiente HTTPS e garanta que o backend aceite CORS do domínio onde o formulário será hospedado.
 
-Envia uma denúncia por e-mail.
+## Suporte
 
-**Body:**
-
-```json
-{
-  "tipo_relato": "Assédio Moral",
-  "identificacao": "on",
-  "nome": "Nome do denunciante",
-  "contato": "contato@email.com",
-  "pessoas_envolvidas": "Nome das pessoas",
-  "descricao": "Descrição do fato"
-}
-```
-
-**Resposta de sucesso:**
-
-```json
-{
-  "success": true,
-  "message": "Denúncia enviada com sucesso!"
-}
-```
-
-**Resposta de erro:**
-
-```json
-{
-  "success": false,
-  "message": "Erro ao enviar a denúncia. Tente novamente mais tarde.",
-  "error": "Mensagem de erro detalhada"
-}
-```
-
-### GET `/api/health`
-
-Verifica se o servidor está funcionando.
-
-**Resposta:**
-
-```json
-{
-  "status": "OK",
-  "message": "Servidor funcionando!"
-}
-```
-
-## Dependências
-
-- `express`: Framework web para Node.js
-- `nodemailer`: Biblioteca para envio de e-mails
-- `cors`: Middleware para habilitar CORS
-- `dotenv`: Carregamento de variáveis de ambiente
+Em caso de dúvidas, contate a equipe responsável pelo Canal de Ética da Sakura.
